@@ -13,11 +13,8 @@ An example invocation would be:
 Todo
 ----
 
- * Wrap application code into a main(query_file) function
+ * Wrap application code into a `main(query_file)` function
  * Replace intermediate XML/RDF outputs with actual temporary files. Use `tempfile.NamedTemporaryFile` to ensure uniqueness.
  * The final output should be written directly to STDOUT. Any informational (logging) messages should be written strictly to STDERR.
   
- 
 
-  
-  
