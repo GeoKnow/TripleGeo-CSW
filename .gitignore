@@ -36,4 +36,8 @@ htmlcov/
 docs/_build/
 
 # Project-specific
-out*.xml
+out[1-9].xml
+out[1-9].rdf
+
+
+
