@@ -51,7 +51,6 @@ def createAll(lst):
 # Create Post Request                                                    #
 ##########################################################################
 
-# Fixme: concurrent write-access to GetRecords.xml
 def createXmlLike(dictionary, box):
     operCount = 0
     namespaces = {'ogc': 'http://www.opengis.net/ogc'}
