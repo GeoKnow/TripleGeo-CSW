@@ -5,7 +5,7 @@ import re
 import urllib2
 import urllib
 from lxml import etree
-import StringIO
+from StringIO import StringIO
 import ConfigParser as configparser
 import tempfile
 import logging
@@ -17,21 +17,19 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 
 logger = logging.getLogger()
-handler = logging.StreamHandler(sys.stderr)
-logger.addHandler(handler)
+log_handler = logging.StreamHandler(sys.stderr)
+logger.addHandler(log_handler)
 logger.setLevel(logging.DEBUG)
 
 # Functions
 
-
-def createAll(list):
-    s = 'GetRecords.xml'
+def createAll(lst):
     namespaces = {'ogc': 'http://www.opengis.net/ogc'}
     with open('GetRecords.xml', 'r') as f:
         obj = etree.parse(f)
         xmlRoot = obj.find(
             './/{http://www.opengis.net/ogc}And', namespaces=namespaces)
-        for i in list:
+        for i in lst:
             child = etree.Element(
                 "{http://www.opengis.net/ogc}PropertyIsEqualTo")
             xmlRoot.append(child)
@@ -42,19 +40,19 @@ def createAll(list):
             child.append(child2)
             child2.text = '**'
 
-        with open('GetRecords.xml', 'w') as n:
-            n.write(
-                etree.tostring(obj, xml_declaration=True, encoding='utf-8'))
+    req = etree.tostring(obj, xml_declaration=True, encoding='utf-8')
+    
+    outbuf = StringIO()
+    request(req, outbuf)
 
-    # request(s)
+    return outbuf.getvalue()
 
 ##########################################################################
-            #Create Post Request#
+# Create Post Request                                                    #
 ##########################################################################
 
-
+# Fixme: concurrent write-access to GetRecords.xml
 def createXmlLike(dictionary, box):
-    s = 'GetRecords.xml'
     operCount = 0
     namespaces = {'ogc': 'http://www.opengis.net/ogc'}
     with open('GetRecords.xml', 'r') as f:
@@ -123,37 +121,37 @@ def createXmlLike(dictionary, box):
         childdd.append(child2)
         child2.text = box[1]
 
-    with open('GetRecords.xml', 'w') as n:
-        n.write(etree.tostring(obj, xml_declaration=True, encoding='utf-8'))
+    
+    req = etree.tostring(obj, xml_declaration=True, encoding='utf-8')
 
-    request(s)
+    outbuf = StringIO()
+    request(req, outbuf)
+
+    return outbuf.getvalue()
 
 ##################################################
-#function for transformation XML responses to RDF#
+# Transformation of XML responses to RDF         #
 ##################################################
 
-
-def transform(temp):
+def transform(temp, outfp):
     temp.seek(0)
-    xml=temp.read()
-    parser=etree.XMLParser(recover=True)
+    xml = temp.read()
+    parser = etree.XMLParser(recover=True)
     dom = etree.fromstring(xml,parser)
     xslt = etree.parse('Metadata2RDF.xsl')
-    transform = etree.XSLT(xslt)
-    newdom = transform(dom)
-    sys.stdout.write(etree.tostring(newdom, pretty_print=True))
+    transformation = etree.XSLT(xslt)
+    newdom = transformation(dom)
+    outfp.write(etree.tostring(newdom, pretty_print=True))
 
 ###########################
-#function to POST Requests#
+# POST Request            #
 ###########################
 
-
-def request(s):
+def request(payload, outfp):
     csw_endpoints = config.get('main', 'csw_endpoints', '').split()
     for j in csw_endpoints:
         with tempfile.NamedTemporaryFile() as temp:
             url = j
-            payload = open(str(s)).read()
             headers = {"Content-type": "application/xml", "Accept": "text/plain"}
             try:
                 r = urllib2.Request(url, payload, headers)
@@ -161,40 +159,17 @@ def request(s):
                 xml_response = u.read()
                 if '<gmd:MD_Metadata' in xml_response:
                     temp.write(xml_response)
-                    transform(temp)
-                    logger.info('Response OK:' +j)
-                    #print 'Response OK:', j, file
+                    transform(temp, outfp)
+                    logger.info('Response OK: ' +j)
                 else:
-                    logger.info('Response nothing:' +j)
-                    #print 'Response nothing:', j
-            except urllib2.URLError as xxx_todo_changeme:
-                (err) = xxx_todo_changeme
-                #print "URL error(%s)" % (err)
-    clear()
-
-###########################################################################
-#function to clear temporary Request Files and other. Hit after request() #
-###########################################################################
-
-
-def clear():
-    # os.remove(str(s))
-    namespaces = {'ogc': 'http://www.opengis.net/ogc'}
-    with open('GetRecords.xml', 'r') as f:
-        obj = etree.parse(f)
-        xmlRoot = obj.find(
-            './/{http://www.opengis.net/ogc}And', namespaces=namespaces)
-        for elem in xmlRoot:
-            # print elem
-            xmlRoot.remove(elem)
-        with open('GetRecords.xml', 'w') as n:
-            n.write(
-                etree.tostring(obj, xml_declaration=True, encoding='utf-8'))
+                    logger.info('Response NONE: ' +j)
+            except urllib2.URLError as ex:
+                logger.error('Failed to complete rrquest: %s', str(ex))
+    return    
 
 #############################################
 #Check if filter exists in open file - query#
 #############################################
-
 
 def extract_filter(query_file):
     for i in open(query_file):
@@ -205,9 +180,9 @@ def extract_filter(query_file):
 
 # Main
 
-
 def main(query_file):
-    list = []
+    result = None
+    lst = []
     dic = {}
     box = []
     with open(query_file, 'r') as f:
@@ -228,7 +203,7 @@ def main(query_file):
                                 dic[q[1] + ':' + q[2]] = [q[3]]
 
                         else:
-                            list.append(q)
+                            lst.append(q)
 
                 if '{' and ':' in line and '}' not in line:
                     s = line[line.find('{') + 1:line.find('}')]
@@ -245,7 +220,7 @@ def main(query_file):
                                 dic[q[1] + ':' + q[2]] = [q[3]]
 
                         else:
-                            list.append(q)
+                            lst.append(q)
 
             if re.search('regex', line, re.IGNORECASE):
                 s1 = re.search('regex', line, re.IGNORECASE)
@@ -256,7 +231,7 @@ def main(query_file):
                     rgx1 = re.compile('([\w+\^?-]*\w)')
                     q = rgx1.findall(sf)
                     z = 0
-                    for j in list:
+                    for j in lst:
                         for i in q:
                             if i in j[3]:
                                 dic.update(
@@ -267,7 +242,7 @@ def main(query_file):
                     rgx1 = re.compile('([\w+\^?-]*\w)')
                     q = rgx1.findall(sf)
                     z = 0
-                    for j in list:
+                    for j in lst:
                         for i in q:
                             if i in j[3]:
                                 dic.update(
@@ -283,14 +258,15 @@ def main(query_file):
     if len(dic) == 0 and len(box) == 0:
         #print 'dictionary empty: nothing to Search.. '
         #print 'Searching all available metadata with AnyText..acoording to given predicates.'
-        #print list
-        createAll(list)
+        result = createAll(lst)
     else:
-        #print dic, list, box
-        createXmlLike(dic, box)
-        pass
+        result = createXmlLike(dic, box)
+    
+    return result
 
-#~START~#
-#read query 
-query_file = sys.argv[1]
-main(query_file)
+# Start ...
+
+if __name__ == '__main__':
+    query_file = sys.argv[1]
+    result = main(query_file)
+    print result

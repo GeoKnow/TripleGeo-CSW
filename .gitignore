@@ -35,6 +35,9 @@ htmlcov/
 # Sphinx documentation
 docs/_build/
 
+# Vim files
+*.swp
+
 # Project-specific
 out[1-9].xml
 out[1-9].rdf
