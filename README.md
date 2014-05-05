@@ -9,6 +9,10 @@ Examples
 An example invocation would be:
 
     python search.py input/q1.txt
+    
+To keep error/output streams separated, invoke as:
+
+    python search.py input/q1.txt 2>err.log 1>out.rdf
 
 Todo
 ----
@@ -17,4 +21,3 @@ Todo
  * Replace intermediate XML/RDF outputs with actual temporary files. Use `tempfile.NamedTemporaryFile` to ensure uniqueness.
  * The final output should be written directly to STDOUT. Any informational (logging) messages should be written strictly to STDERR.
   
-
