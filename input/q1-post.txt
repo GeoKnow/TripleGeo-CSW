@@ -1,0 +1,1 @@
+query=PREFIX+vcard%3A+%3Chttp%3A%2F%2Fwww.w3.org%2F2006%2Fvcard%2Fns%23%3E%0APREFIX+prov%3A+%3Chttp%3A%2F%2Fwww.w3.org%2Fns%2Fprov%23%3E%0A%09%0ASELECT+DISTINCT+%3Fd+%3Fo%0A%0AWHERE+%0A%7B+%0A%3Fm+dcat%3Akeyword+%3Fk.%0AFILTER%28+REGEX%28+str%28%3Fk%29+%2C+%22water%22%29+%29+.%0A%7D
