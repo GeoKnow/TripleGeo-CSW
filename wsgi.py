@@ -53,8 +53,10 @@ def execute_query():
 
 
 if __name__ == '__main__':
+    debug = config.getb('wsgi', 'debug')
+    app.logger.info('Stating at %s mode', ('DEBUG' if debug else 'PRODUCTION'))
     app.run(
-        host = str(config.get('wsgi', 'host', '127.0.0.1')), 
-        port = int(config.get('wsgi', 'port', 5001)), 
-        debug = True)
+        host = config.gets('wsgi', 'host'), 
+        port = config.geti('wsgi', 'port'), 
+        debug = debug)
 
