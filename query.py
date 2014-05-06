@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 import os
 import socket
@@ -6,20 +8,14 @@ import urllib2
 import urllib
 from lxml import etree
 from StringIO import StringIO
-import ConfigParser as configparser
 import tempfile
 import logging
 
+import config
 
 # Globals
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-logger = logging.getLogger()
-log_handler = logging.StreamHandler(sys.stderr)
-logger.addHandler(log_handler)
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Functions
 
@@ -179,7 +175,7 @@ def extract_filter(query_file):
 
 # Main
 
-def main(query_file):
+def invoke(query_file):
     result = None
     lst = []
     dic = {}
@@ -267,5 +263,5 @@ def main(query_file):
 
 if __name__ == '__main__':
     query_file = sys.argv[1]
-    result = main(query_file)
+    result = invoke(query_file)
     print result

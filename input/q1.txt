@@ -7,5 +7,4 @@ WHERE
 { 
 ?m dcat:keyword ?k.
 FILTER( REGEX( str(?k) , "water") ) .
-
 }

@@ -8,6 +8,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+pyenv/
 bin/
 build/
 develop-eggs/
@@ -41,6 +42,6 @@ docs/_build/
 # Project-specific
 out[1-9].xml
 out[1-9].rdf
-
+query.log
 
 
