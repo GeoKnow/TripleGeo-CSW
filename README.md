@@ -36,4 +36,4 @@ To send a query to the WSGI service running at 127.0.0.1:5000:
 Todo
 ----
 
-    * The result from query.invoke should be one valid RDF 
+ * The result from query.invoke should be one valid RDF 
