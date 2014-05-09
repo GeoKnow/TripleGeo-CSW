@@ -33,7 +33,3 @@ To send a query to the WSGI service running at 127.0.0.1:5000:
 
     curl -X POST http://localhost:5000/query -d @input/q1-post.txt
 
-Todo
-----
-
- * The result from query.invoke should be one valid RDF 
