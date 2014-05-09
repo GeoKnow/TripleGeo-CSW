@@ -9,8 +9,8 @@ import query
 
 app = Flask(__name__)
 
-@app.route('/query', methods=['GET', 'POST'])
-def execute_query():
+@app.route('/sparql', methods=['GET', 'POST'])
+def execute_sparql():
     #raise Exception('Break')
     
     # Read query from input

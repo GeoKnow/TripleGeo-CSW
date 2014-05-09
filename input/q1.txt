@@ -1,8 +1,7 @@
 PREFIX vcard: <http://www.w3.org/2006/vcard/ns#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 	
-SELECT DISTINCT ?d ?o
-
+SELECT *
 WHERE 
 { 
 ?m dcat:keyword ?k.
