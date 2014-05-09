@@ -102,7 +102,7 @@ def createXmlLike(dictionary, box):
                         child2.text = p
 
     if len(box) != 0:
-        child = etree.Element("{http://www.opengis.net/ogc}BBOX")
+        child = etree.Element("{http://www.opengis.net/ogc}Within")
         xmlRoot.append(child)
         childd = etree.Element("{http://www.opengis.net/ogc}PropertyName")
         child.append(childd)
