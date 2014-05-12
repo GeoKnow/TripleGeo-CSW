@@ -39,22 +39,11 @@
 
 		<!--Metadata identifier -->		
 		<xsl:variable name='id' select='gmd:fileIdentifier' />
-		<!-- xsl:variable name='resourceURI' select="gmd:distributionInfo//gmd:linkage/gmd:URL" / -->
-		<xsl:variable name='resourceURI' select="concat('http://geodata.gov.gr/datasets/attachments/',$id)" />
-		<xsl:variable name='metadataURI' select="concat('http://geodata.gov.gr/datasets/data/',$id)" />
+		<xsl:variable name='resourceURI' select="gmd:distributionInfo//gmd:linkage/gmd:URL" />
+		<!--<xsl:variable name='resourceURI' select="concat('http://geodata.gov.gr/datasets/attachments/',$id)" /> -->
+		<xsl:variable name='metadataURI' select="concat('urn:uuid:',$id)" />
 		
-		<!--common language-->
-		<!--<xsl:variable name='language' select="'el'"/> -->
-		
-		<!--choose language from metadata -->
-		<!--
-		<xsl:choose>		
-		<xsl:when test="gmd:language/gmd:LanguageCode[@codeListValue = 'gre' or @codeListValue = 'ell']">
-		<xsl:variable name='language' select="'el'"/>
-		</xsl:when>
-		<xsl:otherwise>-->
 		<xsl:variable name='language' select='gmd:identificationInfo//gmd:language' />
-		<!--</xsl:if> -->
 		
 
 		<!--Metadata on Metadata -->
