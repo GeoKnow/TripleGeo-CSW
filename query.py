@@ -49,6 +49,7 @@ def createAll(lst):
 
 def createXmlLike(dictionary, box):
     operCount = 0
+    emt = ['*', '^', '.', '%']
     namespaces = {'ogc': 'http://www.opengis.net/ogc'}
     with open('GetRecords.xml', 'r') as f:
         obj = etree.parse(f)
@@ -56,7 +57,7 @@ def createXmlLike(dictionary, box):
             './/{http://www.opengis.net/ogc}And', namespaces=namespaces)
         for k, v in dictionary.items():
             for p in v:
-                if '*' in p:
+                if any(c in p for c in emt):
                     child = etree.Element(
                         "{http://www.opengis.net/ogc}PropertyIsLike")
                     child.attrib['wildCard'] = '*'
@@ -69,6 +70,7 @@ def createXmlLike(dictionary, box):
                     child2 = etree.Element(
                         "{http://www.opengis.net/ogc}Literal")
                     child.append(child2)
+                    p=p[p.find('*')+1:]
                     child2.text = p
                 else:
                     if len(v) > 1 and operCount == 0:
@@ -162,9 +164,9 @@ def request(payload, outfp):
                 logger.error('Failed to complete rrquest: %s', str(ex))
     return    
 
-#############################################
-#Check if filter exists in open file - query#
-#############################################
+#########################################################
+#Check if filter exists in open file AND enumerate lines#
+#########################################################
 
 def extract_filter(query_file):
     for i in open(query_file):
@@ -172,6 +174,12 @@ def extract_filter(query_file):
             s = re.search('filter', i, re.IGNORECASE)
             flt = s.group()
             return flt
+
+def enumerate_file(query_file):
+    for x, line in enumerate(open(query_file)):
+        if re.search('where', line, re.IGNORECASE):
+            return x
+
 
 # Main
 
@@ -181,8 +189,9 @@ def invoke(query_file):
     dic = {}
     box = []
     with open(query_file, 'r') as f:
-        for line in f:
-            if re.search('([a-z]):([a-z])', line) and 'SELECT' not in line and str(extract_filter(query_file)) not in line:
+        a = enumerate_file(query_file)
+        for line in f.readlines()[a:]:
+            if re.search('([A-Za-z]):([A-Za-z])', line) and str(extract_filter(query_file)) not in line:
                 if '{' and '}' in line:
                     s = line[line.find('{') + 1:line.find('}')]
                     rgx1 = re.compile('([\w+\?-]*\w)')
@@ -218,31 +227,23 @@ def invoke(query_file):
                             lst.append(q)
 
             if re.search('regex', line, re.IGNORECASE):
+                operators = ['&&', '||']
                 s1 = re.search('regex', line, re.IGNORECASE)
                 reg = s1.group()
                 s = line[line.find(str(reg)):]
-                if '&&' in s:
-                    sf = line[line.find(str(reg)):line.rfind('&&')]
-                    rgx1 = re.compile('([\w+\^?-]*\w)')
-                    q = rgx1.findall(sf)
-                    z = 0
-                    for j in lst:
-                        for i in q:
-                            if i in j[3]:
-                                dic.update(
-                                    {j[1] + ':' + j[2]: ['*' + q[len(q) - 1] + '*']})
-                        z = z + 1
+                if any(l in s for l in operators):
+                    a = ''.join([(oper) for oper in operators if oper in s])
                 else:
-                    sf = line[line.find(str(reg)):line.rfind('}')]
-                    rgx1 = re.compile('([\w+\^?-]*\w)')
-                    q = rgx1.findall(sf)
-                    z = 0
-                    for j in lst:
-                        for i in q:
-                            if i in j[3]:
-                                dic.update(
-                                    {j[1] + ':' + j[2]: ['*' + q[len(q) - 1] + '*']})
-                        z = z + 1
+                    a = '}'
+                sf = line[line.find(str(reg)):line.rfind(str(a))]
+                rgx1 = re.compile('([\w+\^?-]*\w)')
+                q = rgx1.findall(sf)
+                for j in lst:
+                    for i in q:
+                        if i in j[3]:
+                            dic.update(
+                                {j[1] + ':' + j[2]: ['*'+q[len(q) - 1] ]})
+
 
             if re.search('box2d', line, re.IGNORECASE):
                 s = re.search('box2d', line, re.IGNORECASE)
