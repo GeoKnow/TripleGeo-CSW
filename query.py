@@ -165,8 +165,23 @@ def request(payload, outfp):
     return    
 
 #########################################################
-#Check if filter exists in open file AND enumerate lines#
+#Check if filter exists in open file AND enumerate lines
+#Create a Valid RDF
 #########################################################
+def validation(result):
+    buf = StringIO()
+    with tempfile.NamedTemporaryFile() as tp:
+        tp.write(result)
+        tp.seek(0)
+        line = tp.readlines()
+        buf.write(line[0])
+        for l in line:
+            if not 'rdf:RDF' in l:
+                buf.write(l)
+        buf.write(line[-1])
+
+        return buf.getvalue() 
+
 
 def extract_filter(query_file):
     for i in open(query_file):
@@ -265,4 +280,5 @@ def invoke(query_file):
 if __name__ == '__main__':
     query_file = sys.argv[1]
     result = invoke(query_file)
-    print result
+    ValidRDF = validation(result)
+    print ValidRDF
