@@ -19,30 +19,6 @@ logger = logging.getLogger(__name__)
 
 # Functions
 
-def createAll(lst):
-    namespaces = {'ogc': 'http://www.opengis.net/ogc'}
-    with open('GetRecords.xml', 'r') as f:
-        obj = etree.parse(f)
-        xmlRoot = obj.find(
-            './/{http://www.opengis.net/ogc}And', namespaces=namespaces)
-        for i in lst:
-            child = etree.Element(
-                "{http://www.opengis.net/ogc}PropertyIsEqualTo")
-            xmlRoot.append(child)
-            child1 = etree.Element("{http://www.opengis.net/ogc}PropertyName")
-            child.append(child1)
-            child1.text = i[1] + ':' + i[2]
-            child2 = etree.Element("{http://www.opengis.net/ogc}Literal")
-            child.append(child2)
-            child2.text = '**'
-
-    req = etree.tostring(obj, xml_declaration=True, encoding='utf-8')
-    
-    outbuf = StringIO()
-    request(req, outbuf)
-
-    return outbuf.getvalue()
-
 ##########################################################################
 # Create Post Request                                                    #
 ##########################################################################
@@ -50,6 +26,7 @@ def createAll(lst):
 def createXmlLike(dictionary, box):
     operCount = 0
     emt = ['*', '^', '.', '%']
+    doper = ['>','<']
     namespaces = {'ogc': 'http://www.opengis.net/ogc'}
     with open('GetRecords.xml', 'r') as f:
         obj = etree.parse(f)
@@ -57,10 +34,32 @@ def createXmlLike(dictionary, box):
             './/{http://www.opengis.net/ogc}And', namespaces=namespaces)
         for k, v in dictionary.items():
             for p in v:
+                if any(b in p for b in doper):
+                    a = ''.join([(oper) for oper in doper if oper in p])
+                    pdate=p[p.find(str(a))+1:]
+                    if a == '<':
+                        child = etree.Element(
+                            "{http://www.opengis.net/ogc}PropertyIsLessThan")
+                        xmlRoot.append(child)
+                    if a == '>':
+                        child = etree.Element(
+                            "{http://www.opengis.net/ogc}PropertyIsGreaterThan")
+                        xmlRoot.append(child)
+
+                    child1 = etree.Element(
+                        "{http://www.opengis.net/ogc}PropertyName")
+                    child.append(child1)
+                    child1.text = k
+                    child2 = etree.Element(
+                        "{http://www.opengis.net/ogc}Literal")
+                    child.append(child2)
+                    child2.text = pdate
+
                 if any(c in p for c in emt):
+                    b=''.join([(wild) for wild in emt if wild in p])
                     child = etree.Element(
                         "{http://www.opengis.net/ogc}PropertyIsLike")
-                    child.attrib['wildCard'] = '*'
+                    child.attrib['wildCard'] = b
                     child.attrib['singleChar'] = '_'
                     xmlRoot.append(child)
                     child1 = etree.Element(
@@ -70,41 +69,41 @@ def createXmlLike(dictionary, box):
                     child2 = etree.Element(
                         "{http://www.opengis.net/ogc}Literal")
                     child.append(child2)
-                    p=p[p.find('*')+1:]
                     child2.text = p
                 else:
-                    if len(v) > 1 and operCount == 0:
-                        childRoot = etree.Element(
-                            "{http://www.opengis.net/ogc}Or")
-                        xmlRoot.append(childRoot)
-                        operCount = operCount + 1
-                    if operCount == 0:
-                        child = etree.Element(
-                            "{http://www.opengis.net/ogc}PropertyIsEqualTo")
-                        xmlRoot.append(child)
-                        child1 = etree.Element(
-                            "{http://www.opengis.net/ogc}PropertyName")
-                        child.append(child1)
-                        child1.text = k
-                        child2 = etree.Element(
-                            "{http://www.opengis.net/ogc}Literal")
-                        child.append(child2)
-                        child2.text = p
-                    else:
-                        child = etree.Element(
-                            "{http://www.opengis.net/ogc}PropertyIsEqualTo")
-                        childRoot.append(child)
-                        child1 = etree.Element(
-                            "{http://www.opengis.net/ogc}PropertyName")
-                        child.append(child1)
-                        child1.text = k
-                        child2 = etree.Element(
-                            "{http://www.opengis.net/ogc}Literal")
-                        child.append(child2)
-                        child2.text = p
+                    if not any(c in p for c in doper):
+                        if len(v) > 1 and operCount == 0:
+                            childRoot = etree.Element(
+                                "{http://www.opengis.net/ogc}Or")
+                            xmlRoot.append(childRoot)
+                            operCount = operCount + 1
+                        if operCount == 0:
+                            child = etree.Element(
+                                "{http://www.opengis.net/ogc}PropertyIsEqualTo")
+                            xmlRoot.append(child)
+                            child1 = etree.Element(
+                                "{http://www.opengis.net/ogc}PropertyName")
+                            child.append(child1)
+                            child1.text = k
+                            child2 = etree.Element(
+                                "{http://www.opengis.net/ogc}Literal")
+                            child.append(child2)
+                            child2.text = p
+                        else:
+                            child = etree.Element(
+                                "{http://www.opengis.net/ogc}PropertyIsEqualTo")
+                            childRoot.append(child)
+                            child1 = etree.Element(
+                                "{http://www.opengis.net/ogc}PropertyName")
+                            child.append(child1)
+                            child1.text = k
+                            child2 = etree.Element(
+                                "{http://www.opengis.net/ogc}Literal")
+                            child.append(child2)
+                            child2.text = p
 
     if len(box) != 0:
-        child = etree.Element("{http://www.opengis.net/ogc}Within")
+        child = etree.Element("{http://www.opengis.net/ogc}"+box[2])
         xmlRoot.append(child)
         childd = etree.Element("{http://www.opengis.net/ogc}PropertyName")
         child.append(childd)
@@ -120,7 +119,7 @@ def createXmlLike(dictionary, box):
 
     
     req = etree.tostring(obj, xml_declaration=True, encoding='utf-8')
-
+    print req
     outbuf = StringIO()
     request(req, outbuf)
 
@@ -206,7 +205,7 @@ def invoke(query_file):
     with open(query_file, 'r') as f:
         a = enumerate_file(query_file)
         for line in f.readlines()[a:]:
-            if re.search('([A-Za-z]):([A-Za-z])', line) and str(extract_filter(query_file)) not in line:
+            if re.search('(dc):([A-Za-z])', line) and str(extract_filter(query_file)) not in line:
                 if '{' and '}' in line:
                     s = line[line.find('{') + 1:line.find('}')]
                     rgx1 = re.compile('([\w+\?-]*\w)')
@@ -251,13 +250,13 @@ def invoke(query_file):
                 else:
                     a = '}'
                 sf = line[line.find(str(reg)):line.rfind(str(a))]
-                rgx1 = re.compile('([\w+\^?-]*\w)')
+                rgx1 = re.compile('([\w+\*^%?-]*\w)')
                 q = rgx1.findall(sf)
                 for j in lst:
                     for i in q:
                         if i in j[3]:
                             dic.update(
-                                {j[1] + ':' + j[2]: ['*'+q[len(q) - 1] ]})
+                                {j[1] + ':' + j[2]: [q[len(q) - 1] ]})
 
 
             if re.search('box2d', line, re.IGNORECASE):
@@ -265,11 +264,32 @@ def invoke(query_file):
                 bo = s.group()
                 s = line[line.find(bo):]
                 box = s.split('(', 1)[1].split(')')[0].split(',')
+                spatial = ['Equals','Crosses','Contains','Within','Intersects','Touches','Disjoint','Overlaps']
+                FilCap =''.join([(capa) for capa in spatial if capa in line])
+                if FilCap:
+                    box.append(FilCap)
+                else:
+                    box.append('BBOX')
+
+            if re.search(r'(\d+-\d+-\d+)', line):
+                match = re.search(r'(\d+-\d+-\d+)', line)
+                date = match.group()
+                dts=['date','modified']
+                for iter in lst:
+                    if any(b in iter for b in dts):
+                        dl = line[line.rfind(iter[3]):line.find(date)-1]
+                        if '>' in dl:
+                            dic[iter[1] + ':' + iter[2]] = ['>' + date]
+                        if '<' in dl:
+                            dic[iter[1] + ':' + iter[2]] = ['<' + date]
+
+
+
 
     if len(dic) == 0 and len(box) == 0:
-        #print 'dictionary empty: nothing to Search.. '
+        print 'dictionary empty: nothing to Search.. '
         #print 'Searching all available metadata with AnyText..acoording to given predicates.'
-        result = createAll(lst)
+        #result = createAll(lst)
     else:
         result = createXmlLike(dic, box)
     
