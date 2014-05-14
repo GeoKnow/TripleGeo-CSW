@@ -170,7 +170,7 @@ def request(payload, outfp):
 #########################################################
 def validation(result):
     buf = StringIO()
-    with tempfile.NamedTemporaryFile() as tp:
+    with tempfile.TemporaryFile() as tp:
         tp.write(result)
         tp.seek(0)
         line = tp.readlines()
