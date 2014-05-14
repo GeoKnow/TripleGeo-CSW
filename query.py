@@ -119,7 +119,7 @@ def createXmlLike(dictionary, box):
 
     
     req = etree.tostring(obj, xml_declaration=True, encoding='utf-8')
-    print req
+    
     outbuf = StringIO()
     request(req, outbuf)
 
@@ -284,13 +284,7 @@ def invoke(query_file):
                             dic[iter[1] + ':' + iter[2]] = ['<' + date]
 
 
-
-
-    if len(dic) == 0 and len(box) == 0:
-        print 'dictionary empty: nothing to Search.. '
-        #print 'Searching all available metadata with AnyText..acoording to given predicates.'
-        #result = createAll(lst)
-    else:
+    if dic or box:
         result = createXmlLike(dic, box)
     
     return result
@@ -300,5 +294,6 @@ def invoke(query_file):
 if __name__ == '__main__':
     query_file = sys.argv[1]
     result = invoke(query_file)
-    ValidRDF = validation(result)
-    print ValidRDF
+    if result:
+        ValidRDF = validation(result)
+        print ValidRDF
