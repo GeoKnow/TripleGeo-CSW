@@ -1,0 +1,5 @@
+PREFIX dc: <http://purl.org/dc/terms/>
+SELECT * 
+WHERE {
+  ?d dc:subject "Environment" 
+}

@@ -117,7 +117,6 @@ def createXmlLike(dictionary, box):
         childdd.append(child2)
         child2.text = box[1]
 
-    
     req = etree.tostring(obj, xml_declaration=True, encoding='utf-8')
     
     outbuf = StringIO()
@@ -180,7 +179,6 @@ def validation(result):
         buf.write(line[-1])
 
         return buf.getvalue() 
-
 
 def extract_filter(query_file):
     for i in open(query_file):
@@ -283,10 +281,12 @@ def invoke(query_file):
                         if '<' in dl:
                             dic[iter[1] + ':' + iter[2]] = ['<' + date]
 
-
     if dic or box:
         result = createXmlLike(dic, box)
     
+    if result:
+        result = validation(result)
+
     return result
 
 # Start ...
@@ -294,6 +294,4 @@ def invoke(query_file):
 if __name__ == '__main__':
     query_file = sys.argv[1]
     result = invoke(query_file)
-    if result:
-        ValidRDF = validation(result)
-        print ValidRDF
+    print result

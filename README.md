@@ -23,13 +23,13 @@ Examples
 
 An example command-line invocation would be:
 
-    python query.py input/q1.txt
+    python query.py input/q1.sparql
     
 To keep error/output streams separated, invoke as:
 
-    python query.py input/q1.txt 2>err.log 1>out.rdf
+    python query.py input/q1.sparql 2>err.log 1>out.rdf
 
 To send a query to the WSGI service running at 127.0.0.1:5000:
 
-    curl -X POST http://localhost:5000/query -d @input/q1-post.txt
+    curl -X POST http://localhost:5000/query -d @input/q0-post.txt
 

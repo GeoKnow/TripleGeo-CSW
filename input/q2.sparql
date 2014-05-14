@@ -1,0 +1,7 @@
+PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+PREFIX geof: <http://www.opengis.net/def/geosparql/function/>
+SELECT *
+WHERE {
+?s geo:geometry ?fWKT .
+FILTER (geof:sfWithin(?fWKT, "BOX2D(-10.58 51.42,-6.00 55.38)"^^geo:wktLiteral ))
+}
