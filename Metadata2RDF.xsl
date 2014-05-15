@@ -36,7 +36,9 @@
 	<rdf:RDF>
 		
 		<xsl:for-each select='//gmd:MD_Metadata' >
-
+                <xsl:variable name='pass' select='gmd:identificationInfo//gmd:geographicElement//gmd:westBoundLongitude' />
+                <xsl:if test=" $pass &gt; -179 " >
+                 
 		<!--Metadata identifier -->		
 		<xsl:variable name='id' select='gmd:fileIdentifier' />
 		<xsl:variable name='resourceURI' select="gmd:distributionInfo//gmd:linkage/gmd:URL" />
@@ -115,10 +117,10 @@
 			</xsl:if>
 
 			<!--Gegraphic Bounding Box,Virtuoso and GeoSparql Specs -->
-			<xsl:variable name='MAXX' select='gmd:identificationInfo//gmd:extent//gmd:eastBoundLongitude' />
-			<xsl:variable name='MINX' select='gmd:identificationInfo//gmd:extent//gmd:westBoundLongitude' />
-			<xsl:variable name='MAXY' select='gmd:identificationInfo//gmd:extent//gmd:northBoundLatitude' />
-			<xsl:variable name='MINY' select='gmd:identificationInfo//gmd:extent//gmd:southBoundLatitude' />
+			<xsl:variable name='MAXX' select='gmd:identificationInfo//gmd:geographicElement//gmd:eastBoundLongitude' />
+			<xsl:variable name='MINX' select='gmd:identificationInfo//gmd:geographicElement//gmd:westBoundLongitude' />
+			<xsl:variable name='MAXY' select='gmd:identificationInfo//gmd:geographicElement//gmd:northBoundLatitude' />
+			<xsl:variable name='MINY' select='gmd:identificationInfo//gmd:geographicElement//gmd:southBoundLatitude' />
 			
 			<!--BBOX Virtuoso Specs -->
 			<dct:spatial>
@@ -232,7 +234,7 @@
 			</dct:conformsTo>
 
 		</rdf:Description>
-		
+		</xsl:if>
 		</xsl:for-each>		
 
 	
