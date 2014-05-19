@@ -56,7 +56,7 @@ def createXmlLike(dictionary, box):
                     child2.text = pdate
 
                 if any(c in p for c in emt):
-                    b=''.join([(wild) for wild in emt if wild in p])
+                    b=''.join([(wild) for wild in emt if wild in p[:1]])
                     child = etree.Element(
                         "{http://www.opengis.net/ogc}PropertyIsLike")
                     child.attrib['wildCard'] = b
@@ -180,13 +180,6 @@ def validation(result):
 
         return buf.getvalue() 
 
-def extract_filter(query_file):
-    for i in open(query_file):
-        if re.search('filter', i, re.IGNORECASE):
-            s = re.search('filter', i, re.IGNORECASE)
-            flt = s.group()
-            return flt
-
 def enumerate_file(query_file):
     for x, line in enumerate(open(query_file)):
         if re.search('where', line, re.IGNORECASE):
@@ -203,40 +196,22 @@ def invoke(query_file):
     with open(query_file, 'r') as f:
         a = enumerate_file(query_file)
         for line in f.readlines()[a:]:
-            if re.search('(dc):([A-Za-z])', line) and str(extract_filter(query_file)) not in line:
-                if '{' and '}' in line:
-                    s = line[line.find('{') + 1:line.find('}')]
-                    rgx1 = re.compile('([\w+\?-]*\w)')
-                    q = rgx1.findall(s)
-                    chunks = [q[x:x + 4] for x in xrange(0, len(q), 4)]
-                    y = [dic.values()]
-                    for q in chunks:
-                        if '?' in q[0] and '?' not in q[3]:
-                            k = q[1] + ':' + q[2]
-                            if k in dic.keys():
-                                dic[k].append(q[3])
-                            else:
-                                dic[q[1] + ':' + q[2]] = [q[3]]
-
+            if re.search('dc(a?t?):([A-Za-z])', line):
+                rgx1 = re.compile(r'(\?[a-z]+)\s+([a-z]+:[a-z]+)\s+(\?[a-z]+)|(\?[a-z]+)\s+([a-z]+:[a-z]+)\s+"(.*?)\"', re.M|re.I)
+                k = rgx1.findall(line)
+                q= [j for i in k for j in i if j ]
+                chunks = [q[x:x + 3] for x in xrange(0, len(q), 3)]
+                y = [dic.values()]
+                for q in chunks:
+                    if '?' in q[0] and '?' not in q[2]:
+                        k = q[1]
+                        if k in dic.keys():
+                            dic[k].append(q[2])
                         else:
-                            lst.append(q)
+                            dic[q[1]] = [q[2]]
 
-                if '{' and ':' in line and '}' not in line:
-                    s = line[line.find('{') + 1:line.find('}')]
-                    rgx1 = re.compile('([\w+\?-]*\w)')
-                    q = rgx1.findall(s)
-                    chunks = [q[x:x + 4] for x in xrange(0, len(q), 4)]
-                    y = [dic.values()]
-                    for q in chunks:
-                        if '?'in q[0] and '?' not in q[3]:
-                            k = q[1] + ':' + q[2]
-                            if k in dic.keys():
-                                dic[k].append(q[3])
-                            else:
-                                dic[q[1] + ':' + q[2]] = [q[3]]
-
-                        else:
-                            lst.append(q)
+                    else:
+                        lst.append(q)
 
             if re.search('regex', line, re.IGNORECASE):
                 operators = ['&&', '||']
@@ -248,13 +223,14 @@ def invoke(query_file):
                 else:
                     a = '}'
                 sf = line[line.find(str(reg)):line.rfind(str(a))]
-                rgx1 = re.compile('([\w+\*^%?-]*\w)')
-                q = rgx1.findall(sf)
+                rgx1=re.compile(r'(\?[a-z]+)|"(.*)\"',re.M|re.I)
+                rx = rgx1.findall(sf)
+                q=[x for i in rx for x in i if x]
                 for j in lst:
                     for i in q:
-                        if i in j[3]:
+                        if i in j[2]:
                             dic.update(
-                                {j[1] + ':' + j[2]: [q[len(q) - 1] ]})
+                                {j[1] : [ q[1] ]})
 
 
             if re.search('box2d', line, re.IGNORECASE):
@@ -269,17 +245,17 @@ def invoke(query_file):
                 else:
                     box.append('BBOX')
 
-            if re.search(r'(\d+-\d+-\d+)', line):
+            if re.search(r'(\d{4}-\d{2}-\d{2})', line):
                 match = re.search(r'(\d+-\d+-\d+)', line)
                 date = match.group()
                 dts=['date','modified']
                 for iter in lst:
-                    if any(b in iter for b in dts):
-                        dl = line[line.rfind(iter[3]):line.find(date)-1]
+                   if any(b in iter[2] for b in dts):
+                        dl = line[line.rfind(iter[2]):line.find(date)-1]
                         if '>' in dl:
-                            dic[iter[1] + ':' + iter[2]] = ['>' + date]
+                            dic[iter[1]] = ['>' + date]
                         if '<' in dl:
-                            dic[iter[1] + ':' + iter[2]] = ['<' + date]
+                            dic[iter[1]] = ['<' + date]
 
     if dic or box:
         result = createXmlLike(dic, box)
