@@ -238,7 +238,7 @@ def invoke(query_file):
                 bo = s.group()
                 s = line[line.find(bo):]
                 box = s.split('(', 1)[1].split(')')[0].split(',')
-                spatial = ['Equals','Crosses','Contains','Within','Intersects','Touches','Disjoint','Overlaps']
+                spatial = ['Equals','Crosses','Contains','Intersects','Touches','Disjoint']
                 FilCap =''.join([(capa) for capa in spatial if capa in line])
                 if FilCap:
                     box.append(FilCap)
