@@ -143,21 +143,29 @@
 			</dct:spatial>
 			-->
 
-			
-			<!--Date of publication -->
-			<dct:issued rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>
-				<xsl:value-of select='(gmd:identificationInfo//gmd:CI_Date/gmd:date)[1]' />
-			</dct:issued>
-			
-			<!--Date of last revision -->
-			<dct:modified rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>
-				<xsl:value-of select='(gmd:identificationInfo//gmd:CI_Date/gmd:date)[2]' />
-			</dct:modified>
-			
-			<!--Date of creation -->
-			<dct:created rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>
-				<xsl:value-of select='(gmd:identificationInfo//gmd:CI_Date/gmd:date)[3]' />
-			</dct:created>
+			<!--Create Date elements -->
+			<xsl:for-each select='gmd:identificationInfo//gmd:citation//gmd:date/gmd:CI_Date' >
+				<xsl:if test='gmd:dateType/gmd:CI_DateTypeCode[@codeListValue = "publication"]' >
+					<!--Date of publication -->
+					<dct:issued rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>
+						<xsl:value-of select='gmd:date/gco:DateTime' />
+					</dct:issued>
+				</xsl:if>
+                        
+				<xsl:if test='gmd:dateType/gmd:CI_DateTypeCode[@codeListValue = "revision"]' >
+					<!--Date of last revision -->
+					<dct:modified rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>
+						<xsl:value-of select='gmd:date/gco:DateTime' />
+					</dct:modified>
+				</xsl:if>
+
+				<xsl:if test='gmd:dateType/gmd:CI_DateTypeCode[@codeListValue = "creation"]' >
+					<!--Date of creation -->
+					<dct:created rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>
+						<xsl:value-of select='gmd:date/gco:DateTime' />
+					</dct:created>
+                        	</xsl:if>
+			</xsl:for-each>
 			
 			<!--Lineage -->
 			<dct:provenance>
