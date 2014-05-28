@@ -3,5 +3,5 @@ SELECT *
 WHERE {
 ?b dc:subject "biota" .
 ?s dc:title ?title .
-FILTER ( REGEX(?title , "*ecology*")
+FILTER ( REGEX(?title , "*ecology*"))
 }
