@@ -1,5 +1,8 @@
-PREFIX dc: <http://purl.org/dc/terms/>
-SELECT * 
+PREFIX dct: <http://purl.org/dc/terms>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
+SELECT *
 WHERE {
-  ?d dc:subject "Environment" 
+?s dct:modified ?date .
+?b dc:title ?title .
+FILTER ( ?date < "2014-01-01"^^xsd:date && REGEX(str(?title) , "%water%"))
 }
