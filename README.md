@@ -1,7 +1,7 @@
-csw2rdf-middleware
-==================
+TripleGeo-CSW
+=============
 
-A draft implementation of a CSW-to-RDF middleware application.
+An implementation of a CSW-to-RDF middleware application.
 
 Requirements
 ------------
@@ -10,8 +10,8 @@ Make sure all requirements are properly installed. This applies to both command-
 
     pip install -r pip-requirements.txt
 
-Start Middleware
-----------------
+Start middleware service
+------------------------
 
 Edit your configuration at `config.ini` and adjust to your needs (host, port, CSW endpoints etc.).  
 Afterwards, you just have to start the WSGI application:
