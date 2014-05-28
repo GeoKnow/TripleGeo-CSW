@@ -1,7 +1,7 @@
-PREFIX dc: <http://purl.org/dc/terms/>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 SELECT *
 WHERE {
-?m dc:subject "Environment" .
-?m dc:title ?k .
-FILTER ( REGEX( str(?k), "*network*" ) )
+?b dc:subject "biota" .
+?s dc:title ?title .
+FILTER ( REGEX(?title , "*ecology*")
 }
