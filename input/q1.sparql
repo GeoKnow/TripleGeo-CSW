@@ -1,5 +1,6 @@
 PREFIX dct: <http://purl.org/dc/terms>
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT *
 WHERE {
 ?s dct:modified ?date .
