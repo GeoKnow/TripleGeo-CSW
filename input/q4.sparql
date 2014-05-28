@@ -1,12 +1,10 @@
-PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX geo: <http://www.opengis.net/ont/geosparql#>
 PREFIX geof: <http://www.opengis.net/def/geosparql/function/>
-PREFIX dc: <http://purl.org/dc/terms/>
 SELECT *
 WHERE {
-?m dcat:keyword ?k .
-?m dc:subject "Environment" .
-?m geo:geometry ?fWKT . 
-FILTER ( REGEX( str(?k), "water" )  && geof:sfWithin(?fWKT, "BOX2D(-10.58 51.42,-6.00 55.38)"^^geo:wktLiteral))
+?b dc:subject "biota" .
+?s dc:title ?title .
+?s geo:hasGeometry ?fWKT .
+FILTER ( REGEX(?title , "*ecology*" && geof:sfWithin("BOX2D(-5.01 50.23, 1.69 56.12)"^^geo:wktLiteral)) 
 }
-
