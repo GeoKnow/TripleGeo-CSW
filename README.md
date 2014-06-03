@@ -31,5 +31,5 @@ To keep error/output streams separated, invoke as:
 
 To send a query to the WSGI service running at 127.0.0.1:5000:
 
-    curl -X POST http://localhost:5000/query -d @input/q0-post.txt
+    curl -v -X POST http://localhost:5000/sparql -d @input/q0-post.txt
 
