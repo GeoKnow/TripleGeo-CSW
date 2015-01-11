@@ -16,11 +16,13 @@ Start middleware service
 Edit your configuration at `config.ini` and adjust to your needs (host, port, CSW endpoints etc.).  
 Afterwards, you just have to start the WSGI application:
 
+    cp config-example.ini config.in
+    # Edit config.ini
     python wsgi.py
 
 If you want to run the service under uWSGI, there is a convenience wrapper for this:
 
-    ./run-uwsgi.sh start
+    ./run-uwsgi.sh {start/stop/reload}
 
 Examples
 --------

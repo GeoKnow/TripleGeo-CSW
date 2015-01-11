@@ -43,5 +43,5 @@ docs/_build/
 out[1-9].xml
 out[1-9].rdf
 query.log
-
+config.ini
 
