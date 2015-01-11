@@ -18,6 +18,10 @@ Afterwards, you just have to start the WSGI application:
 
     python wsgi.py
 
+If you want to run the service under uWSGI, there is a convenience wrapper for this:
+
+    ./run-uwsgi.sh start
+
 Examples
 --------
 
